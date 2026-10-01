@@ -4,4 +4,6 @@ scikit-learn
 xgboost
 matplotlib
 seaborn
+shap
+radon
 jupyter
