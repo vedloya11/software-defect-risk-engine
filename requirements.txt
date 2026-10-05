@@ -6,4 +6,9 @@ matplotlib
 seaborn
 shap
 radon
+fastapi
+uvicorn
+pydantic
+python-multipart
+httpx
 jupyter
