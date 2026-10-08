@@ -3,6 +3,8 @@ import sys
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, status, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 # Ensure project root is in sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -43,6 +45,21 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount static files directory
+STATIC_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static"))
+if os.path.exists(STATIC_DIR):
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+@app.get("/", tags=["Frontend"])
+async def serve_dashboard():
+    """
+    Serves the primary Web Dashboard interface.
+    """
+    index_path = os.path.join(STATIC_DIR, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return {"message": "Defect Risk Engine API is active. Open /docs for Swagger UI."}
 
 @app.get("/health", response_model=HealthResponse, tags=["Monitoring"])
 async def health_check():
@@ -117,7 +134,7 @@ async def analyze_file_upload(file: UploadFile = File(..., description="Python s
     if len(contents) > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail=f"File too large. Maximum allowed size is 5MB."
+            detail="File too large. Maximum allowed size is 5MB."
         )
 
     # 4. Decode file bytes to UTF-8 string

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predictive Code Quality & Defect Risk Engine</title>
+    <meta name="description" content="AI-powered software defect risk prediction and SHAP explainability dashboard.">
+    <!-- Google Fonts: Inter and Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Background Glow Elements -->
+    <div class="glow-orb glow-1"></div>
+    <div class="glow-orb glow-2"></div>
+
+    <div class="app-container">
+        <!-- Top Navigation -->
+        <header class="navbar">
+            <div class="logo-group">
+                <div class="logo-icon">⚡</div>
+                <div class="logo-text">
+                    <h1>DefectRisk<span>Engine</span></h1>
+                    <span class="tagline">AI Software Quality & Explainable Risk Intelligence</span>
+                </div>
+            </div>
+            <div class="system-status-badge" id="systemStatusBadge">
+                <span class="status-dot"></span>
+                <span id="systemStatusText">Connecting to Engine...</span>
+            </div>
+        </header>
+
+        <!-- Main Layout Grid -->
+        <main class="main-content">
+            <!-- Left Panel: Input / Code Upload -->
+            <section class="panel input-panel">
+                <div class="panel-header">
+                    <h2>Source Code Input</h2>
+                    <div class="tab-controls">
+                        <button class="tab-btn active" id="tabUploadBtn" onclick="switchTab('upload')">📁 File Upload</button>
+                        <button class="tab-btn" id="tabPasteBtn" onclick="switchTab('paste')">📝 Paste Code</button>
+                    </div>
+                </div>
+
+                <!-- Tab 1: File Upload -->
+                <div class="tab-content" id="uploadTabContent">
+                    <div class="drop-zone" id="dropZone">
+                        <input type="file" id="fileInput" accept=".py" class="file-input-hidden">
+                        <div class="drop-zone-content">
+                            <div class="upload-icon">📂</div>
+                            <h3>Drag & Drop Python File</h3>
+                            <p>or <span class="browse-link">browse from your computer</span></p>
+                            <span class="file-hint">Supports .py files up to 5MB</span>
+                        </div>
+                        <div class="selected-file-info hidden" id="selectedFileInfo">
+                            <span class="file-badge">🐍 Python</span>
+                            <span class="file-name" id="selectedFileName">filename.py</span>
+                            <span class="file-size" id="selectedFileSize">(0 KB)</span>
+                            <button class="remove-file-btn" id="removeFileBtn" onclick="clearSelectedFile(event)">✕</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Paste Code -->
+                <div class="tab-content hidden" id="pasteTabContent">
+                    <div class="editor-toolbar">
+                        <span class="editor-label">python</span>
+                        <div class="sample-buttons">
+                            <button type="button" class="sample-btn" id="sampleRiskyBtn" onclick="loadSample('risky')">⚠️ Load Risky Code</button>
+                            <button type="button" class="sample-btn" id="sampleCleanBtn" onclick="loadSample('clean')">✅ Load Clean Code</button>
+                        </div>
+                    </div>
+                    <textarea id="codeEditor" class="code-textarea" placeholder="Paste your Python source code here..." spellcheck="false"></textarea>
+                </div>
+
+                <div class="action-bar">
+                    <button class="btn-primary" id="analyzeBtn" onclick="runAnalysis()">
+                        <span class="btn-icon">⚡</span>
+                        <span class="btn-text" id="analyzeBtnText">Analyze Defect Risk</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Right Panel: Analysis Results -->
+            <section class="panel results-panel" id="resultsPanel">
+                <!-- Placeholder when no analysis is run yet -->
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-state-icon">🔍</div>
+                    <h3>Ready for Analysis</h3>
+                    <p>Upload a Python file or paste code on the left, then click <strong>Analyze Defect Risk</strong> to see real-time AI scoring and SHAP explainability factors.</p>
+                </div>
+
+                <!-- Loading State -->
+                <div class="loading-state hidden" id="loadingState">
+                    <div class="spinner"></div>
+                    <p>Extracting AST Metrics & Running TreeSHAP Inference...</p>
+                </div>
+
+                <!-- Active Report Content -->
+                <div class="report-content hidden" id="reportContent">
+                    <!-- Top Risk Summary Card -->
+                    <div class="risk-hero-card" id="riskHeroCard">
+                        <div class="risk-gauge-container">
+                            <div class="circular-progress" id="circularProgress">
+                                <span class="progress-value" id="riskPercentText">0%</span>
+                            </div>
+                        </div>
+                        <div class="risk-meta">
+                            <div class="risk-level-badge" id="riskLevelBadge">MEDIUM RISK</div>
+                            <h3 id="reportFileName">module.py</h3>
+                            <p class="risk-summary-text" id="riskSummaryText">Defect probability calculated from non-linear metric interactions.</p>
+                        </div>
+                    </div>
+
+                    <!-- Most Suspicious Component Callout -->
+                    <div class="suspicious-component-card" id="suspiciousCard">
+                        <div class="suspicious-header">
+                            <span class="suspicious-icon">🎯</span>
+                            <h4>Most Suspicious Component</h4>
+                        </div>
+                        <p class="suspicious-text" id="suspiciousComponentText">process_payment() [Complexity: 10, Line 7]</p>
+                        <span class="suspicious-hint">Refactoring this function will yield the highest reduction in defect risk.</span>
+                    </div>
+
+                    <!-- SHAP Explainability Drivers -->
+                    <div class="shap-grid">
+                        <!-- Top Risk Drivers (Red) -->
+                        <div class="shap-card risk-drivers-card">
+                            <div class="shap-header">
+                                <span class="shap-icon">▲</span>
+                                <h4>Top Risk Increasing Factors</h4>
+                            </div>
+                            <ul class="shap-list" id="riskDriversList">
+                                <!-- Dynamic items injected via JS -->
+                            </ul>
+                        </div>
+
+                        <!-- Top Mitigating Factors (Green) -->
+                        <div class="shap-card mitigating-drivers-card">
+                            <div class="shap-header">
+                                <span class="shap-icon">▼</span>
+                                <h4>Top Mitigating Factors</h4>
+                            </div>
+                            <ul class="shap-list" id="mitigatingDriversList">
+                                <!-- Dynamic items injected via JS -->
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Raw Code Metrics Grid -->
+                    <div class="metrics-section">
+                        <h4>Static Metric Extractions</h4>
+                        <div class="metrics-grid" id="metricsGrid">
+                            <div class="metric-card">
+                                <span class="metric-label">Lines of Code</span>
+                                <span class="metric-value" id="metricLOC">0</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-label">Cyclomatic Complexity</span>
+                                <span class="metric-value" id="metricCYCLO">0</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-label">Branch Count</span>
+                                <span class="metric-value" id="metricBranch">0</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-label">External Dependencies</span>
+                                <span class="metric-value" id="metricDeps">0</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-label">Total Operators</span>
+                                <span class="metric-value" id="metricOperators">0</span>
+                            </div>
+                            <div class="metric-card">
+                                <span class="metric-label">Total Operands</span>
+                                <span class="metric-value" id="metricOperands">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Functions Breakdown -->
+                    <div class="functions-section">
+                        <h4>Function Complexity Breakdown (<span id="functionCount">0</span> functions)</h4>
+                        <div class="function-table-container">
+                            <table class="function-table">
+                                <thead>
+                                    <tr>
+                                        <th>Function / Method</th>
+                                        <th>Line</th>
+                                        <th>Cyclomatic Complexity</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="functionTableBody">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

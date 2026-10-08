@@ -1,0 +1,52 @@
+{
+    "sample_index": 0,
+    "predicted_defect_risk": "49.47%",
+    "risk_level": "MEDIUM",
+    "base_expected_value": 0.0207,
+    "top_risk_drivers": [
+        {
+            "feature": "LOC",
+            "feature_value": 0.2215,
+            "shap_contribution": 0.0463,
+            "impact": "Increases Risk"
+        },
+        {
+            "feature": "NUM_OPERANDS",
+            "feature_value": 0.3094,
+            "shap_contribution": 0.0429,
+            "impact": "Increases Risk"
+        },
+        {
+            "feature": "NUM_OPERATORS",
+            "feature_value": 0.5624,
+            "shap_contribution": 0.0418,
+            "impact": "Increases Risk"
+        },
+        {
+            "feature": "INT_FAN_IN",
+            "feature_value": 0.6667,
+            "shap_contribution": 0.0054,
+            "impact": "Increases Risk"
+        }
+    ],
+    "top_mitigating_factors": [
+        {
+            "feature": "COMPLEXITY_BRANCH_RATIO",
+            "feature_value": 0.498,
+            "shap_contribution": -0.0784,
+            "impact": "Decreases Risk"
+        },
+        {
+            "feature": "BRANCH_COUNT",
+            "feature_value": 0.7857,
+            "shap_contribution": -0.0298,
+            "impact": "Decreases Risk"
+        },
+        {
+            "feature": "VOLUME",
+            "feature_value": 0.1651,
+            "shap_contribution": -0.0287,
+            "impact": "Decreases Risk"
+        }
+    ]
+}
