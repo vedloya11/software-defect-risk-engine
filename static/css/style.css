@@ -737,3 +737,194 @@ body {
 
 /* Utilities */
 .hidden { display: none !important; }
+
+/* ==========================================================================
+   Database Scan History & Audit Trail (Phase 17)
+   ========================================================================== */
+.history-panel {
+    margin-top: 28px;
+    width: 100%;
+}
+
+.history-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.history-icon-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    background: rgba(99, 102, 241, 0.15);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.history-subtitle {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    display: block;
+    margin-top: 2px;
+}
+
+.history-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-select {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.filter-select:focus {
+    border-color: var(--accent-primary);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-danger {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.btn-danger:hover {
+    background: rgba(239, 68, 68, 0.25);
+    color: #ffffff;
+    border-color: rgba(239, 68, 68, 0.6);
+}
+
+.history-table-wrapper {
+    max-height: 380px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+}
+
+.history-table th {
+    position: sticky;
+    top: 0;
+    background: #0d1320;
+    padding: 12px 14px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-color);
+    z-index: 2;
+}
+
+.history-table td {
+    padding: 12px 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    color: #d1d5db;
+}
+
+.history-table tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.history-id {
+    font-family: var(--font-mono);
+    color: var(--accent-cyan);
+    font-weight: 600;
+}
+
+.history-time {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.history-filename {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.history-prob {
+    font-family: var(--font-heading);
+    font-weight: 700;
+}
+
+.history-suspicious {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.delete-row-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.delete-row-btn:hover {
+    color: var(--risk-high);
+    background: rgba(239, 68, 68, 0.15);
+}
+
+.history-empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--text-secondary);
+}
+
+.empty-mini-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+    opacity: 0.5;
+}

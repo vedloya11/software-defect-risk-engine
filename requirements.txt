@@ -12,3 +12,4 @@ pydantic
 python-multipart
 httpx
 jupyter
+sqlalchemy

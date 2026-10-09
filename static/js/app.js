@@ -1,5 +1,6 @@
 /**
  * DefectRiskEngine Frontend Application Logic
+ * Integrates AST Analysis, ML Prediction, SHAP Explainability & Database History.
  */
 
 let currentTab = 'upload';
@@ -53,6 +54,7 @@ def process_payment(user_id, amount, is_vip, retry_count=3):
 document.addEventListener('DOMContentLoaded', () => {
     initDropZone();
     checkEngineHealth();
+    loadHistory();
 });
 
 // Health Check Probe
@@ -214,6 +216,9 @@ async function runAnalysis() {
 
         const data = await response.json();
         renderReport(data);
+        
+        // Refresh Database History in real time
+        loadHistory();
     } catch (err) {
         alert(`Error: ${err.message}`);
         emptyState.classList.remove('hidden');
@@ -313,4 +318,108 @@ function renderReport(data) {
             tbody.appendChild(tr);
         });
     }
+}
+
+// ==========================================
+// Database History Functions (Phase 17)
+// ==========================================
+
+async function loadHistory() {
+    const tbody = document.getElementById('historyTableBody');
+    const emptyMsg = document.getElementById('historyEmpty');
+    const historyCount = document.getElementById('historyCount');
+    const filter = document.getElementById('riskFilterSelect').value;
+
+    let url = '/api/v1/history?limit=50';
+    if (filter) {
+        url += `&risk=${filter}`;
+    }
+
+    try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Failed to fetch history');
+        const data = await res.json();
+
+        historyCount.textContent = data.total_count;
+        tbody.innerHTML = '';
+
+        if (!data.scans || data.scans.length === 0) {
+            emptyMsg.classList.remove('hidden');
+            return;
+        }
+
+        emptyMsg.classList.add('hidden');
+
+        data.scans.forEach(scan => {
+            const tr = document.createElement('tr');
+            const riskClass = (scan.defect_risk || 'low').toLowerCase();
+            
+            tr.innerHTML = `
+                <td class="history-id">#${scan.id}</td>
+                <td class="history-time">${scan.created_at || 'N/A'}</td>
+                <td class="history-filename">${escapeHtml(scan.filename)}</td>
+                <td><span class="risk-level-badge ${riskClass}">${scan.defect_risk}</span></td>
+                <td class="history-prob">${scan.risk_probability}</td>
+                <td>${scan.lines_of_code}</td>
+                <td>${scan.cyclomatic_complexity}</td>
+                <td class="history-suspicious" title="${escapeHtml(scan.most_suspicious_component)}">
+                    ${escapeHtml(scan.most_suspicious_component)}
+                </td>
+                <td>
+                    <button class="delete-row-btn" title="Delete scan record" onclick="deleteScan(${scan.id})">🗑️</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (err) {
+        console.error('Error loading history:', err);
+    }
+}
+
+async function deleteScan(scanId) {
+    try {
+        const res = await fetch(`/api/v1/history/${scanId}`, {
+            method: 'DELETE'
+        });
+        if (res.ok) {
+            loadHistory();
+        } else {
+            alert('Failed to delete scan record.');
+        }
+    } catch (err) {
+        console.error('Delete error:', err);
+        alert('Network error while deleting record.');
+    }
+}
+
+async function clearAllHistory() {
+    if (!confirm('Are you sure you want to clear all persistent scan audit records from the database?')) {
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/v1/history', {
+            method: 'DELETE'
+        });
+        if (res.ok) {
+            loadHistory();
+        } else {
+            alert('Failed to clear scan history.');
+        }
+    } catch (err) {
+        console.error('Clear history error:', err);
+        alert('Network error while clearing history.');
+    }
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.toString().replace(/[&<>"']/g, m => map[m]);
 }

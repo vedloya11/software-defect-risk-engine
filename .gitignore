@@ -24,3 +24,8 @@ Thumbs.db
 mlruns/
 models/*.pkl
 models/*.joblib
+
+# Local SQLite databases
+*.db
+*.sqlite
+*.sqlite3

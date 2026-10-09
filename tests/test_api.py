@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 from api.main import app
 
 def test_api():
-    print("Testing FastAPI endpoints using TestClient with Lifespan...")
+    print("Testing FastAPI & Database Integration using TestClient with Lifespan...")
     with TestClient(app) as client:
         # 1. Health check
         res = client.get("/health")
@@ -50,16 +50,50 @@ def transfer_funds(account_id, amount, is_authenticated):
         assert "risk_probability" in res_file.json()
         assert "most_suspicious_component" in res_file.json()
 
-        # 4. Analyze file upload with INVALID file extension (e.g. .txt or .png)
+        # 4. Analyze file upload with INVALID file extension (e.g. .txt)
         invalid_file = io.BytesIO(b"Hello world text")
         files_invalid = {
             "file": ("notes.txt", invalid_file, "text/plain")
         }
         res_invalid = client.post("/api/v1/analyze-file", files=files_invalid)
-        print("\n[POST /api/v1/analyze-file (Invalid .txt Rejection)]: Status", res_invalid.status_code, res_invalid.json())
+        print("\n[POST /api/v1/analyze-file (Invalid .txt Rejection)]: Status", res_invalid.status_code)
         assert res_invalid.status_code == 400
 
-    print("\n[OK] All Phase 15 & Phase 16 endpoints verified successfully!")
+        # 5. Database History Check (Phase 17)
+        res_history = client.get("/api/v1/history")
+        print("\n[GET /api/v1/history Response]: Status", res_history.status_code)
+        history_data = res_history.json()
+        print(f"Total scans stored in DB: {history_data['total_count']}")
+        assert res_history.status_code == 200
+        assert history_data["total_count"] >= 2
+        assert len(history_data["scans"]) >= 2
+        
+        # Verify first scan record structure
+        first_scan = history_data["scans"][0]
+        print(f"Latest scan record: ID={first_scan['id']}, File={first_scan['filename']}, Risk={first_scan['defect_risk']}, Prob={first_scan['risk_probability']}")
+        assert "id" in first_scan
+        assert "filename" in first_scan
+        assert "probability_score" in first_scan
+        assert "created_at" in first_scan
+        scan_id = first_scan["id"]
+
+        # 6. Get Single Scan by ID
+        res_single = client.get(f"/api/v1/history/{scan_id}")
+        print(f"\n[GET /api/v1/history/{scan_id} Response]: Status", res_single.status_code)
+        assert res_single.status_code == 200
+        assert res_single.json()["id"] == scan_id
+
+        # 7. Delete Single Scan Record
+        res_del = client.delete(f"/api/v1/history/{scan_id}")
+        print(f"\n[DELETE /api/v1/history/{scan_id} Response]: Status", res_del.status_code, res_del.json())
+        assert res_del.status_code == 200
+        assert res_del.json()["deleted_count"] == 1
+
+        # Verify record is deleted
+        res_single_404 = client.get(f"/api/v1/history/{scan_id}")
+        assert res_single_404.status_code == 404
+
+    print("\n[OK] All Phase 15, 16, & 17 Endpoints (AST, ML, FastAPI, and Database History) verified successfully!")
 
 if __name__ == "__main__":
     test_api()

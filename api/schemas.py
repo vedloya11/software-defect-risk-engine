@@ -36,3 +36,25 @@ class HealthResponse(BaseModel):
     version: str
     engine: str
     model_loaded: bool
+
+class ScanHistoryItem(BaseModel):
+    id: int
+    filename: str
+    defect_risk: str
+    risk_probability: str
+    probability_score: float
+    lines_of_code: int
+    cyclomatic_complexity: int
+    branch_count: int
+    most_suspicious_component: str
+    main_risk_factors: List[str]
+    main_mitigating_factors: List[str]
+    created_at: str
+
+class ScanHistoryResponse(BaseModel):
+    total_count: int
+    scans: List[ScanHistoryItem]
+
+class DeleteHistoryResponse(BaseModel):
+    message: str
+    deleted_count: int

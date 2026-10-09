@@ -202,6 +202,58 @@
                 </div>
             </section>
         </main>
+        
+        <!-- Bottom Panel: Database Scan History & Audit Trail (Phase 17) -->
+        <section class="panel history-panel" id="historyPanel">
+            <div class="panel-header">
+                <div class="history-title-group">
+                    <div class="history-icon-badge">📜</div>
+                    <div>
+                        <h2>Scan History & Audit Trail</h2>
+                        <span class="history-subtitle">Persistent records stored in SQL Database (<span id="historyCount">0</span> total scans)</span>
+                    </div>
+                </div>
+                <div class="history-controls">
+                    <select id="riskFilterSelect" class="filter-select" onchange="loadHistory()">
+                        <option value="">All Risk Levels</option>
+                        <option value="HIGH">High Risk Only</option>
+                        <option value="MEDIUM">Medium Risk Only</option>
+                        <option value="LOW">Low Risk Only</option>
+                    </select>
+                    <button class="btn-secondary" id="refreshHistoryBtn" onclick="loadHistory()">
+                        <span>🔄</span> Refresh
+                    </button>
+                    <button class="btn-danger" id="clearHistoryBtn" onclick="clearAllHistory()">
+                        <span>🗑️</span> Clear History
+                    </button>
+                </div>
+            </div>
+
+            <div class="history-table-wrapper">
+                <table class="history-table" id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>#ID</th>
+                            <th>Timestamp</th>
+                            <th>File Name</th>
+                            <th>Risk Assessment</th>
+                            <th>Risk Probability</th>
+                            <th>LOC</th>
+                            <th>Cyclomatic</th>
+                            <th>Most Suspicious Component</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <!-- Dynamic rows loaded from /api/v1/history -->
+                    </tbody>
+                </table>
+                <div class="history-empty hidden" id="historyEmpty">
+                    <div class="empty-mini-icon">📂</div>
+                    <p>No historical scan records found. Run a code analysis above to populate audit logs!</p>
+                </div>
+            </div>
+        </section>
     </div>
 
     <script src="/static/js/app.js"></script>
