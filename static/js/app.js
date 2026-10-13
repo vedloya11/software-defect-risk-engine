@@ -1,13 +1,18 @@
 /**
- * DefectRiskEngine Frontend Application Logic
- * Integrates AST Analysis, ML Prediction, SHAP Explainability & Database History.
+ * DefectEngine — High-End Developer Client Logic
+ * Clean AST Metric Visualizations, TreeSHAP Attributions & Database Audit Log
  */
 
-let currentTab = 'upload';
+let currentTab = 'paste';
 let selectedFile = null;
 
-// Sample Snippets for Instant Testing
+// Realistic Presets
 const SAMPLES = {
+    clean: `def get_user_greeting(username: str) -> str:
+    """Returns a clean personalized greeting with boundary checks."""
+    clean_name = username.strip().title()
+    return f"Welcome back, {clean_name}!"
+`,
     risky: `import os
 import requests
 import json
@@ -42,20 +47,52 @@ def process_payment(user_id, amount, is_vip, retry_count=3):
                 return {"status": "failed", "error": str(e)}
                 
     return {"status": "timeout"}
-`,
-    clean: `def calculate_discount(price: float, discount_percent: float) -> float:
-    """Calculates clean discounted price."""
-    if price < 0 or discount_percent < 0:
-        raise ValueError("Price and discount must be positive")
-    return price * (1 - discount_percent / 100)
 `
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    initEditorEvents();
     initDropZone();
     checkEngineHealth();
     loadHistory();
+    // Default load clean helper so editor isn't blank
+    loadSample('clean');
 });
+
+// Editor Keyboard & Input Events
+function initEditorEvents() {
+    const editor = document.getElementById('codeEditor');
+
+    // Live lines & chars counter
+    editor.addEventListener('input', updateEditorStats);
+
+    // Tab key indentation support & Ctrl+Enter to execute
+    editor.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            editor.value = editor.value.substring(0, start) + "    " + editor.value.substring(end);
+            editor.selectionStart = editor.selectionEnd = start + 4;
+            updateEditorStats();
+        } else if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            e.preventDefault();
+            runAnalysis();
+        }
+    });
+}
+
+function updateEditorStats() {
+    const code = document.getElementById('codeEditor').value;
+    const lines = code ? code.split('\n').length : 0;
+    const chars = code.length;
+    document.getElementById('editorStats').textContent = `${lines} lines · ${chars} chars`;
+}
+
+function clearEditor() {
+    document.getElementById('codeEditor').value = '';
+    updateEditorStats();
+}
 
 // Health Check Probe
 async function checkEngineHealth() {
@@ -66,7 +103,7 @@ async function checkEngineHealth() {
         const res = await fetch('/health');
         const data = await res.json();
         if (data.status === 'healthy' && data.model_loaded) {
-            text.textContent = `Live: ${data.engine}`;
+            text.textContent = 'NASA KC1 Model Online · Ready';
             badge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
         } else {
             text.textContent = 'Engine Degraded';
@@ -105,7 +142,7 @@ function initDropZone() {
     const fileInput = document.getElementById('fileInput');
 
     dropZone.addEventListener('click', (e) => {
-        if (!e.target.closest('#removeFileBtn')) {
+        if (!e.target.closest('.btn-icon-danger')) {
             fileInput.click();
         }
     });
@@ -139,15 +176,15 @@ function initDropZone() {
 
 function handleFileSelect(file) {
     if (!file.name.endsWith('.py')) {
-        alert('Please select a valid Python (.py) file.');
+        alert('Unsupported file type. Please select a valid Python (.py) source file.');
         return;
     }
     selectedFile = file;
-    document.querySelector('.drop-zone-content').classList.add('hidden');
+    document.getElementById('dropzoneIdle').classList.add('hidden');
     const info = document.getElementById('selectedFileInfo');
     info.classList.remove('hidden');
     document.getElementById('selectedFileName').textContent = file.name;
-    document.getElementById('selectedFileSize').textContent = `(${(file.size / 1024).toFixed(1)} KB)`;
+    document.getElementById('selectedFileSize').textContent = `${(file.size / 1024).toFixed(1)} KB`;
 }
 
 function clearSelectedFile(e) {
@@ -155,14 +192,17 @@ function clearSelectedFile(e) {
     selectedFile = null;
     document.getElementById('fileInput').value = '';
     document.getElementById('selectedFileInfo').classList.add('hidden');
-    document.querySelector('.drop-zone-content').classList.remove('hidden');
+    document.getElementById('dropzoneIdle').classList.remove('hidden');
 }
 
 function loadSample(type) {
+    switchTab('paste');
     document.getElementById('codeEditor').value = SAMPLES[type];
+    document.getElementById('editorFileTitle').textContent = type === 'risky' ? 'payment_routine.py' : 'string_helper.py';
+    updateEditorStats();
 }
 
-// Run Defect Analysis
+// Execute Defect Analysis
 async function runAnalysis() {
     const emptyState = document.getElementById('emptyState');
     const loadingState = document.getElementById('loadingState');
@@ -193,17 +233,18 @@ async function runAnalysis() {
         } else {
             const code = document.getElementById('codeEditor').value;
             if (!code.trim()) {
-                alert('Please paste Python code to analyze.');
+                alert('Code editor is empty. Enter Python code to evaluate.');
                 loadingState.classList.add('hidden');
                 emptyState.classList.remove('hidden');
                 analyzeBtn.disabled = false;
                 return;
             }
+            const filename = document.getElementById('editorFileTitle').textContent || 'module.py';
             response = await fetch('/api/v1/analyze', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    filename: 'editor_snippet.py',
+                    filename: filename,
                     source_code: code
                 })
             });
@@ -217,10 +258,10 @@ async function runAnalysis() {
         const data = await response.json();
         renderReport(data);
         
-        // Refresh Database History in real time
+        // Refresh History Audit Trail in real-time
         loadHistory();
     } catch (err) {
-        alert(`Error: ${err.message}`);
+        alert(`Analysis Error: ${err.message}`);
         emptyState.classList.remove('hidden');
     } finally {
         loadingState.classList.add('hidden');
@@ -228,60 +269,99 @@ async function runAnalysis() {
     }
 }
 
-// Render Results
+// Render Results Report
 function renderReport(data) {
     const reportContent = document.getElementById('reportContent');
     reportContent.classList.remove('hidden');
 
-    // 1. Risk Level & Percent
+    // 1. Verdict & Gauge
     document.getElementById('reportFileName').textContent = data.filename;
     document.getElementById('riskPercentText').textContent = data.risk_probability;
 
     const badge = document.getElementById('riskLevelBadge');
-    badge.textContent = `${data.defect_risk} RISK`;
-    badge.className = `risk-level-badge ${data.defect_risk.toLowerCase()}`;
-
-    // Color progress circle
-    const circle = document.getElementById('circularProgress');
-    const prob = data.probability_score;
-    let color = '#10b981';
-    if (data.defect_risk === 'HIGH') color = '#ef4444';
-    else if (data.defect_risk === 'MEDIUM') color = '#f59e0b';
+    const headline = document.getElementById('verdictHeadline');
+    const summary = document.getElementById('riskSummaryText');
+    const radialBar = document.getElementById('radialBar');
     
-    circle.style.background = `conic-gradient(${color} ${prob * 360}deg, rgba(255, 255, 255, 0.05) 0deg)`;
+    const prob = data.probability_score;
+    const tier = data.defect_risk.toUpperCase();
+    
+    // Radial gauge calculation (Radius 42 => circumference = 263.89)
+    const circumference = 263.89;
+    const offset = circumference - (prob * circumference);
+    radialBar.style.strokeDashoffset = offset;
 
-    // 2. Suspicious Component
-    document.getElementById('suspiciousComponentText').textContent = data.most_suspicious_component;
+    if (tier === 'HIGH') {
+        badge.className = 'verdict-badge high';
+        badge.textContent = 'HIGH RISK';
+        radialBar.style.stroke = '#EF4444';
+        headline.textContent = 'High Defect Susceptibility';
+        summary.textContent = 'Significant non-linear complexity and high operator volume indicate elevated regression likelihood.';
+    } else if (tier === 'MEDIUM') {
+        badge.className = 'verdict-badge medium';
+        badge.textContent = 'MODERATE RISK';
+        radialBar.style.stroke = '#F59E0B';
+        headline.textContent = 'Moderate Defect Probability';
+        summary.textContent = 'Moderate structural branching observed. Review complex routines prior to production release.';
+    } else {
+        badge.className = 'verdict-badge low';
+        badge.textContent = 'LOW RISK';
+        radialBar.style.stroke = '#10B981';
+        headline.textContent = 'Clean Structural Profile';
+        summary.textContent = 'Metric distribution is well-factored with low cyclomatic complexity and low cognitive load.';
+    }
 
-    // 3. SHAP Risk Drivers
+    // 2. Hotspot Callout
+    const hotspotCard = document.getElementById('hotspotCard');
+    const hotspotText = document.getElementById('suspiciousComponentText');
+    const hotspotRationale = document.getElementById('hotspotRationale');
+
+    if (data.most_suspicious_component && data.most_suspicious_component !== 'None') {
+        hotspotCard.classList.remove('hidden');
+        hotspotText.textContent = data.most_suspicious_component;
+        hotspotRationale.textContent = 'This routine exhibits the highest decision path density in the module. Refactoring here yields the greatest reduction in defect risk.';
+    } else {
+        hotspotText.textContent = 'No critical component hotspot identified.';
+        hotspotRationale.textContent = 'Routines in this module conform to standard McCabe cyclomatic bounds.';
+    }
+
+    // 3. TreeSHAP Risk Drivers
     const riskList = document.getElementById('riskDriversList');
     riskList.innerHTML = '';
-    if (data.main_risk_factors.length === 0) {
-        riskList.innerHTML = '<li class="shap-item">No major risk drivers detected.</li>';
+    if (!data.main_risk_factors || data.main_risk_factors.length === 0) {
+        riskList.innerHTML = '<li class="shap-factor-item"><span class="shap-metric-label">No significant risk drivers detected</span></li>';
     } else {
         data.main_risk_factors.forEach(item => {
+            const parsed = parseShapString(item);
             const li = document.createElement('li');
-            li.className = 'shap-item';
-            li.innerHTML = `<span>${item}</span>`;
+            li.className = 'shap-factor-item';
+            li.innerHTML = `
+                <span class="shap-metric-label">${escapeHtml(parsed.feature)}</span>
+                <span class="shap-val-tag risk">${escapeHtml(parsed.impact)}</span>
+            `;
             riskList.appendChild(li);
         });
     }
 
-    // 4. SHAP Mitigating Drivers
+    // 4. TreeSHAP Mitigating Drivers
     const mitList = document.getElementById('mitigatingDriversList');
     mitList.innerHTML = '';
-    if (data.main_mitigating_factors.length === 0) {
-        mitList.innerHTML = '<li class="shap-item">No significant mitigating factors.</li>';
+    if (!data.main_mitigating_factors || data.main_mitigating_factors.length === 0) {
+        mitList.innerHTML = '<li class="shap-factor-item"><span class="shap-metric-label">No major mitigating factors</span></li>';
     } else {
         data.main_mitigating_factors.forEach(item => {
+            const parsed = parseShapString(item);
             const li = document.createElement('li');
-            li.className = 'shap-item';
-            li.innerHTML = `<span>${item}</span>`;
+            li.className = 'shap-factor-item';
+            li.innerHTML = `
+                <span class="shap-metric-label">${escapeHtml(parsed.feature)}</span>
+                <span class="shap-val-tag mitigate">${escapeHtml(parsed.impact)}</span>
+            `;
             mitList.appendChild(li);
         });
     }
 
-    // 5. Raw Static Metrics
+    // 5. Static Metric Tiles
     const raw = data.raw_metrics_summary;
     document.getElementById('metricLOC').textContent = raw.lines_of_code;
     document.getElementById('metricCYCLO').textContent = raw.cyclomatic_complexity;
@@ -290,38 +370,76 @@ function renderReport(data) {
     document.getElementById('metricOperators').textContent = raw.total_operators;
     document.getElementById('metricOperands').textContent = raw.total_operands;
 
-    // 6. Function Breakdown Table
+    // 6. Function Decomposition Table
     const tbody = document.getElementById('functionTableBody');
     tbody.innerHTML = '';
     document.getElementById('functionCount').textContent = data.function_breakdown.length;
 
     if (data.function_breakdown.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#9ca3af;">No discrete function definitions detected (module-level script).</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-muted); padding:16px;">No discrete routines detected (pure script / module-level scope).</td></tr>';
     } else {
         data.function_breakdown.forEach(fn => {
             const tr = document.createElement('tr');
-            let pillClass = 'low';
-            let statusText = 'Clean';
-            if (fn.complexity > 7) {
-                pillClass = 'high';
-                statusText = 'High Risk';
-            } else if (fn.complexity > 3) {
-                pillClass = 'medium';
-                statusText = 'Moderate';
+            let pillClass = 'safe';
+            let labelText = 'Normal';
+            if (fn.complexity > 10) {
+                pillClass = 'review';
+                labelText = 'Refactor';
+            } else if (fn.complexity > 4) {
+                pillClass = 'moderate';
+                labelText = 'Review';
             }
             tr.innerHTML = `
-                <td><strong>${fn.name}()</strong></td>
-                <td>Line ${fn.lineno}</td>
-                <td><span class="complexity-pill ${pillClass}">${fn.complexity}</span></td>
-                <td><span style="color: ${pillClass === 'high' ? '#ef4444' : (pillClass === 'medium' ? '#f59e0b' : '#10b981')}">${statusText}</span></td>
+                <td><code style="color:#FFFFFF; font-weight:600;">def ${escapeHtml(fn.name)}()</code></td>
+                <td><span style="font-family:var(--font-mono); color:var(--text-muted);">Line ${fn.lineno}</span></td>
+                <td><span style="font-family:var(--font-mono); font-weight:700; color:#FFFFFF;">${fn.complexity}</span></td>
+                <td><span class="priority-pill ${pillClass}">${labelText}</span></td>
             `;
             tbody.appendChild(tr);
         });
     }
 }
 
+// Parse Raw SHAP factor string (e.g. "VOLUME (Risk Increasing, SHAP impact: +0.1811)")
+function parseShapString(str) {
+    if (!str) return { feature: 'Metric', impact: '0.00' };
+    const parts = str.split(' (');
+    const featureName = parts[0] || str;
+    let impact = '';
+    if (parts[1]) {
+        const impactMatch = parts[1].match(/impact:\s*([+-]?[\d.]+)/);
+        if (impactMatch) {
+            impact = impactMatch[1];
+        }
+    }
+    return {
+        feature: cleanFeatureName(featureName),
+        impact: impact || '+0.05'
+    };
+}
+
+function cleanFeatureName(name) {
+    const map = {
+        'LOC': 'Lines of Code',
+        'CYCLO': 'Cyclomatic Complexity v(g)',
+        'LENGTH': 'Halstead Length',
+        'VOLUME': 'Halstead Volume',
+        'DIFFICULTY': 'Halstead Difficulty',
+        'NUM_OPERATORS': 'Operator Volume',
+        'NUM_OPERANDS': 'Operand Volume',
+        'BRANCH_COUNT': 'Branch Count',
+        'COMPLEXITY_DENSITY': 'Complexity Density',
+        'OPERATOR_DENSITY': 'Operator Density',
+        'OPERAND_DENSITY': 'Operand Density',
+        'COMPLEXITY_BRANCH_RATIO': 'Branch Complexity Ratio',
+        'INT_FAN_IN': 'Internal Coupling (Fan-In)',
+        'INT_FAN_OUT': 'External Dependencies (Fan-Out)'
+    };
+    return map[name] || name;
+}
+
 // ==========================================
-// Database History Functions (Phase 17)
+// Database Audit Trail Telemetry
 // ==========================================
 
 async function loadHistory() {
@@ -352,35 +470,41 @@ async function loadHistory() {
 
         data.scans.forEach(scan => {
             const tr = document.createElement('tr');
-            const riskClass = (scan.defect_risk || 'low').toLowerCase();
-            
+            const tier = (scan.defect_risk || 'LOW').toUpperCase();
+            let pillClass = 'low';
+            if (tier === 'HIGH') pillClass = 'high';
+            else if (tier === 'MEDIUM') pillClass = 'medium';
+
             tr.innerHTML = `
-                <td class="history-id">#${scan.id}</td>
-                <td class="history-time">${scan.created_at || 'N/A'}</td>
-                <td class="history-filename">${escapeHtml(scan.filename)}</td>
-                <td><span class="risk-level-badge ${riskClass}">${scan.defect_risk}</span></td>
-                <td class="history-prob">${scan.risk_probability}</td>
-                <td>${scan.lines_of_code}</td>
-                <td>${scan.cyclomatic_complexity}</td>
-                <td class="history-suspicious" title="${escapeHtml(scan.most_suspicious_component)}">
+                <td class="audit-id">#${scan.id}</td>
+                <td class="audit-time">${escapeHtml(scan.created_at || 'Just now')}</td>
+                <td class="audit-file">${escapeHtml(scan.filename)}</td>
+                <td><span class="verdict-badge ${pillClass}">${tier}</span></td>
+                <td class="audit-prob">${scan.risk_probability}</td>
+                <td style="font-family:var(--font-mono);">${scan.lines_of_code}</td>
+                <td style="font-family:var(--font-mono);">${scan.cyclomatic_complexity}</td>
+                <td class="audit-hotspot" title="${escapeHtml(scan.most_suspicious_component)}">
                     ${escapeHtml(scan.most_suspicious_component)}
                 </td>
                 <td>
-                    <button class="delete-row-btn" title="Delete scan record" onclick="deleteScan(${scan.id})">🗑️</button>
+                    <button type="button" class="btn-row-del" onclick="deleteScan(${scan.id})" title="Delete audit record">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                        </svg>
+                    </button>
                 </td>
             `;
             tbody.appendChild(tr);
         });
     } catch (err) {
-        console.error('Error loading history:', err);
+        console.error('Error fetching history:', err);
     }
 }
 
 async function deleteScan(scanId) {
     try {
-        const res = await fetch(`/api/v1/history/${scanId}`, {
-            method: 'DELETE'
-        });
+        const res = await fetch(`/api/v1/history/${scanId}`, { method: 'DELETE' });
         if (res.ok) {
             loadHistory();
         } else {
@@ -388,19 +512,16 @@ async function deleteScan(scanId) {
         }
     } catch (err) {
         console.error('Delete error:', err);
-        alert('Network error while deleting record.');
     }
 }
 
 async function clearAllHistory() {
-    if (!confirm('Are you sure you want to clear all persistent scan audit records from the database?')) {
+    if (!confirm('Clear all audit telemetry logs from database?')) {
         return;
     }
 
     try {
-        const res = await fetch('/api/v1/history', {
-            method: 'DELETE'
-        });
+        const res = await fetch('/api/v1/history', { method: 'DELETE' });
         if (res.ok) {
             loadHistory();
         } else {
@@ -408,7 +529,6 @@ async function clearAllHistory() {
         }
     } catch (err) {
         console.error('Clear history error:', err);
-        alert('Network error while clearing history.');
     }
 }
 
