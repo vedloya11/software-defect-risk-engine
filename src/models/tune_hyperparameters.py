@@ -67,13 +67,13 @@ def tune_xgboost(
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=random_state)
     
     print(f"\nStarting RandomizedSearchCV ({n_iter} iterations across 5 folds = {n_iter * 5} total fits)...")
-    print("Optimization Metric: PR-AUC (average_precision)")
+    print("Optimization Metric: ROC-AUC (roc_auc)")
     
     random_search = RandomizedSearchCV(
         estimator=base_xgb,
         param_distributions=param_distributions,
         n_iter=n_iter,
-        scoring='average_precision',
+        scoring='roc_auc',
         cv=cv,
         verbose=1,
         random_state=random_state,

@@ -1,51 +1,51 @@
 {
     "sample_index": 0,
-    "predicted_defect_risk": "49.47%",
-    "risk_level": "MEDIUM",
-    "base_expected_value": 0.0207,
+    "predicted_defect_risk": "21.80%",
+    "risk_level": "LOW",
+    "base_expected_value": 0.0263,
     "top_risk_drivers": [
         {
-            "feature": "LOC",
-            "feature_value": 0.2215,
-            "shap_contribution": 0.0463,
+            "feature": "OPERATOR_DENSITY",
+            "feature_value": 3.5964,
+            "shap_contribution": 0.0871,
             "impact": "Increases Risk"
         },
         {
-            "feature": "NUM_OPERANDS",
-            "feature_value": 0.3094,
-            "shap_contribution": 0.0429,
+            "feature": "DIFFICULTY",
+            "feature_value": 0.06,
+            "shap_contribution": 0.0827,
             "impact": "Increases Risk"
         },
         {
-            "feature": "NUM_OPERATORS",
-            "feature_value": 0.5624,
-            "shap_contribution": 0.0418,
+            "feature": "COMPLEXITY_DENSITY",
+            "feature_value": 3.33,
+            "shap_contribution": 0.0636,
             "impact": "Increases Risk"
         },
         {
-            "feature": "INT_FAN_IN",
-            "feature_value": 0.6667,
-            "shap_contribution": 0.0054,
+            "feature": "CYCLO",
+            "feature_value": 0.0333,
+            "shap_contribution": 0.0064,
             "impact": "Increases Risk"
         }
     ],
     "top_mitigating_factors": [
         {
-            "feature": "COMPLEXITY_BRANCH_RATIO",
-            "feature_value": 0.498,
-            "shap_contribution": -0.0784,
-            "impact": "Decreases Risk"
-        },
-        {
-            "feature": "BRANCH_COUNT",
-            "feature_value": 0.7857,
-            "shap_contribution": -0.0298,
+            "feature": "NUM_OPERANDS",
+            "feature_value": 0.02,
+            "shap_contribution": -0.4721,
             "impact": "Decreases Risk"
         },
         {
             "feature": "VOLUME",
-            "feature_value": 0.1651,
-            "shap_contribution": -0.0287,
+            "feature_value": 0.0108,
+            "shap_contribution": -0.4055,
+            "impact": "Decreases Risk"
+        },
+        {
+            "feature": "OPERAND_DENSITY",
+            "feature_value": 1.998,
+            "shap_contribution": -0.2753,
             "impact": "Decreases Risk"
         }
     ]
