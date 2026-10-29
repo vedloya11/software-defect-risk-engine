@@ -1,5 +1,5 @@
 /**
- * DefectEngine — High-End Developer Client Logic
+ * DefectEngine — High-Utility Developer Client Logic
  * Clean AST Metric Visualizations, TreeSHAP Attributions & Database Audit Log
  */
 
@@ -96,22 +96,21 @@ function clearEditor() {
 
 // Health Check Probe
 async function checkEngineHealth() {
-    const badge = document.getElementById('systemStatusBadge');
     const text = document.getElementById('systemStatusText');
     
     try {
         const res = await fetch('/health');
         const data = await res.json();
         if (data.status === 'healthy' && data.model_loaded) {
-            text.textContent = 'NASA KC1 Model Online · Ready';
-            badge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+            text.textContent = 'NASA KC1 Model Ready';
+            text.style.color = '#3fb950';
         } else {
-            text.textContent = 'Engine Degraded';
-            badge.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+            text.textContent = 'Model Degraded';
+            text.style.color = '#f85149';
         }
     } catch (e) {
         text.textContent = 'Server Offline';
-        badge.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+        text.style.color = '#f85149';
     }
 }
 
@@ -142,7 +141,7 @@ function initDropZone() {
     const fileInput = document.getElementById('fileInput');
 
     dropZone.addEventListener('click', (e) => {
-        if (!e.target.closest('.btn-icon-danger')) {
+        if (!e.target.closest('.btn-icon-subtle')) {
             fileInput.click();
         }
     });
@@ -284,7 +283,7 @@ function renderReport(data) {
     const radialBar = document.getElementById('radialBar');
     
     const prob = data.probability_score;
-    const tier = data.defect_risk.toUpperCase();
+    const tier = (data.defect_risk || 'LOW').toUpperCase();
     
     // Radial gauge calculation (Radius 42 => circumference = 263.89)
     const circumference = 263.89;
@@ -292,37 +291,41 @@ function renderReport(data) {
     radialBar.style.strokeDashoffset = offset;
 
     if (tier === 'HIGH') {
-        badge.className = 'verdict-badge high';
+        badge.className = 'risk-badge high';
         badge.textContent = 'HIGH RISK';
-        radialBar.style.stroke = '#EF4444';
+        radialBar.style.stroke = '#f85149';
         headline.textContent = 'High Defect Susceptibility';
         summary.textContent = 'Significant non-linear complexity and high operator volume indicate elevated regression likelihood.';
     } else if (tier === 'MEDIUM') {
-        badge.className = 'verdict-badge medium';
+        badge.className = 'risk-badge medium';
         badge.textContent = 'MODERATE RISK';
-        radialBar.style.stroke = '#F59E0B';
+        radialBar.style.stroke = '#d29922';
         headline.textContent = 'Moderate Defect Probability';
         summary.textContent = 'Moderate structural branching observed. Review complex routines prior to production release.';
     } else {
-        badge.className = 'verdict-badge low';
+        badge.className = 'risk-badge low';
         badge.textContent = 'LOW RISK';
-        radialBar.style.stroke = '#10B981';
+        radialBar.style.stroke = '#3fb950';
         headline.textContent = 'Clean Structural Profile';
         summary.textContent = 'Metric distribution is well-factored with low cyclomatic complexity and low cognitive load.';
     }
 
-    // 2. Hotspot Callout
+    // 2. Hotspot Callout (Only display when an actual high-complexity routine requires attention)
     const hotspotCard = document.getElementById('hotspotCard');
     const hotspotText = document.getElementById('suspiciousComponentText');
     const hotspotRationale = document.getElementById('hotspotRationale');
 
-    if (data.most_suspicious_component && data.most_suspicious_component !== 'None') {
+    const hasHotspot = data.most_suspicious_component && 
+                       data.most_suspicious_component !== 'None' && 
+                       data.most_suspicious_component !== 'module_level' && 
+                       tier !== 'LOW';
+
+    if (hasHotspot) {
         hotspotCard.classList.remove('hidden');
         hotspotText.textContent = data.most_suspicious_component;
         hotspotRationale.textContent = 'This routine exhibits the highest decision path density in the module. Refactoring here yields the greatest reduction in defect risk.';
     } else {
-        hotspotText.textContent = 'No critical component hotspot identified.';
-        hotspotRationale.textContent = 'Routines in this module conform to standard McCabe cyclomatic bounds.';
+        hotspotCard.classList.add('hidden');
     }
 
     // 3. TreeSHAP Risk Drivers
@@ -361,7 +364,7 @@ function renderReport(data) {
         });
     }
 
-    // 5. Static Metric Tiles
+    // 5. Static Metric Ribbon Values
     const raw = data.raw_metrics_summary;
     document.getElementById('metricLOC').textContent = raw.lines_of_code;
     document.getElementById('metricCYCLO').textContent = raw.cyclomatic_complexity;
@@ -390,9 +393,9 @@ function renderReport(data) {
                 labelText = 'Review';
             }
             tr.innerHTML = `
-                <td><code style="color:#FFFFFF; font-weight:600;">def ${escapeHtml(fn.name)}()</code></td>
-                <td><span style="font-family:var(--font-mono); color:var(--text-muted);">Line ${fn.lineno}</span></td>
-                <td><span style="font-family:var(--font-mono); font-weight:700; color:#FFFFFF;">${fn.complexity}</span></td>
+                <td><code style="color:var(--text-primary); font-weight:600; font-family:var(--font-mono);">def ${escapeHtml(fn.name)}()</code></td>
+                <td><span style="font-family:var(--font-mono); color:var(--text-muted); font-size:11.5px;">Line ${fn.lineno}</span></td>
+                <td><span style="font-family:var(--font-mono); font-weight:600; color:var(--text-primary);">${fn.complexity}</span></td>
                 <td><span class="priority-pill ${pillClass}">${labelText}</span></td>
             `;
             tbody.appendChild(tr);
@@ -479,7 +482,7 @@ async function loadHistory() {
                 <td class="audit-id">#${scan.id}</td>
                 <td class="audit-time">${escapeHtml(scan.created_at || 'Just now')}</td>
                 <td class="audit-file">${escapeHtml(scan.filename)}</td>
-                <td><span class="verdict-badge ${pillClass}">${tier}</span></td>
+                <td><span class="risk-badge ${pillClass}">${tier}</span></td>
                 <td class="audit-prob">${scan.risk_probability}</td>
                 <td style="font-family:var(--font-mono);">${scan.lines_of_code}</td>
                 <td style="font-family:var(--font-mono);">${scan.cyclomatic_complexity}</td>
@@ -488,7 +491,7 @@ async function loadHistory() {
                 </td>
                 <td>
                     <button type="button" class="btn-row-del" onclick="deleteScan(${scan.id})" title="Delete audit record">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="3 6 5 6 21 6"/>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                         </svg>

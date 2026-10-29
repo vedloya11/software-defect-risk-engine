@@ -4,41 +4,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DefectEngine — Static Code Quality & Defect Risk Intelligence</title>
-    <meta name="description" content="Production-grade AI defect risk scoring and TreeSHAP explainability engine for Python codebases.">
+    <meta name="description" content="Production-grade AST defect risk scoring and TreeSHAP explainability engine for Python codebases.">
     <!-- Google Fonts: Inter and JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css?v=2.1">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css?v=3.1">
 </head>
 <body>
-    <div class="app-layout">
-        <!-- Top Navigation -->
-        <header class="app-header">
-            <div class="header-left">
-                <div class="brand-mark">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <div class="app-shell">
+        <!-- Top Application Navigation -->
+        <header class="top-nav">
+            <div class="nav-brand">
+                <div class="brand-logo" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="m18 16 4-4-4-4"/>
                         <path d="m6 8-4 4 4 4"/>
                         <path d="m14.5 4-5 16"/>
                     </svg>
                 </div>
-                <div class="brand-meta">
-                    <div class="brand-title">
-                        <h1>Defect<span>Engine</span></h1>
-                        <span class="version-tag">v1.2.0</span>
+                <div class="brand-info">
+                    <div class="brand-heading">
+                        <span class="brand-title">DefectEngine</span>
+                        <span class="engine-version">v1.2.0</span>
                     </div>
-                    <span class="brand-sub">Static AST Inspection · NASA KC1 Benchmark · TreeSHAP</span>
+                    <span class="brand-tagline">AST Static Metrics · NASA KC1 Benchmark · TreeSHAP Attribution</span>
                 </div>
             </div>
 
-            <div class="header-right">
-                <div class="system-status-chip" id="systemStatusBadge">
-                    <span class="status-ping"></span>
-                    <span id="systemStatusText" class="status-text">Connecting to engine...</span>
+            <div class="nav-actions">
+                <div class="system-health-indicator" id="systemStatusBadge">
+                    <span class="health-label">Engine:</span>
+                    <span id="systemStatusText" class="health-value">Connecting...</span>
                 </div>
-                <a href="https://github.com/vedloya11/software-defect-risk-engine" target="_blank" rel="noopener noreferrer" class="github-link-btn" title="View source on GitHub">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <a href="https://github.com/vedloya11/software-defect-risk-engine" target="_blank" rel="noopener noreferrer" class="nav-btn-link" title="Source repository">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
                     </svg>
                     <span>GitHub</span>
@@ -47,20 +47,20 @@
         </header>
 
         <!-- Main Workspace -->
-        <main class="workspace-grid">
-            <!-- Left Workspace: Code Input -->
-            <section class="card input-workspace">
-                <div class="workspace-tabs-header">
-                    <div class="segmented-control">
-                        <button type="button" class="segment-btn active" id="tabPasteBtn" onclick="switchTab('paste')">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <main class="workbench-container">
+            <!-- Left Panel: Source Code Input -->
+            <section class="workbench-panel panel-input" aria-label="Source Code Input">
+                <div class="panel-toolbar">
+                    <div class="panel-tabs">
+                        <button type="button" class="tab-btn active" id="tabPasteBtn" onclick="switchTab('paste')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <polyline points="4 17 10 11 4 5"/>
                                 <line x1="12" y1="19" x2="20" y2="19"/>
                             </svg>
                             <span>Code Editor</span>
                         </button>
-                        <button type="button" class="segment-btn" id="tabUploadBtn" onclick="switchTab('upload')">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <button type="button" class="tab-btn" id="tabUploadBtn" onclick="switchTab('upload')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                                 <polyline points="17 8 12 3 7 8"/>
                                 <line x1="12" y1="3" x2="12" y2="15"/>
@@ -69,63 +69,59 @@
                         </button>
                     </div>
 
-                    <!-- Preset Chips -->
-                    <div class="presets-group">
-                        <span class="preset-label">Presets:</span>
-                        <button type="button" class="preset-chip" onclick="loadSample('clean')" title="Load clean pure function">
-                            <span class="chip-dot clean"></span> Clean Helper
-                        </button>
-                        <button type="button" class="preset-chip" onclick="loadSample('risky')" title="Load complex nested payment logic">
-                            <span class="chip-dot risky"></span> Risky Routine
-                        </button>
+                    <div class="preset-controls">
+                        <span class="control-label">Load Sample:</span>
+                        <button type="button" class="btn-sample" onclick="loadSample('clean')" title="Load clean pure function sample">Clean Module</button>
+                        <button type="button" class="btn-sample" onclick="loadSample('risky')" title="Load complex nested payment logic sample">Risky Module</button>
                     </div>
                 </div>
 
-                <!-- View 1: Code Editor -->
-                <div class="tab-view" id="pasteTabContent">
-                    <div class="editor-shell">
-                        <div class="editor-header">
-                            <div class="editor-tab-pill">
-                                <span class="file-icon">py</span>
+                <!-- Tab View 1: Code Editor -->
+                <div class="tab-content" id="pasteTabContent">
+                    <div class="editor-pane">
+                        <div class="editor-subbar">
+                            <div class="file-tag">
+                                <span class="file-ext">PY</span>
                                 <span class="file-title" id="editorFileTitle">module.py</span>
                             </div>
-                            <div class="editor-meta">
-                                <span id="editorStats">0 lines · 0 chars</span>
-                                <button type="button" class="editor-clear-btn" onclick="clearEditor()" title="Clear editor content">Clear</button>
+                            <div class="editor-subbar-right">
+                                <span class="meta-counter" id="editorStats">0 lines · 0 chars</span>
+                                <button type="button" class="btn-action-text" onclick="clearEditor()" title="Clear editor content">Clear</button>
                             </div>
                         </div>
-                        <div class="editor-wrapper">
-                            <textarea id="codeEditor" class="code-editor" placeholder="# Paste your Python code here...&#10;def process_order(cart):&#10;    pass" spellcheck="false"></textarea>
+                        <div class="editor-field">
+                            <textarea id="codeEditor" class="code-textarea" placeholder="# Enter Python code to analyze defect risk..." spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
                         </div>
                     </div>
                 </div>
 
-                <!-- View 2: File Upload Dropzone -->
-                <div class="tab-view hidden" id="uploadTabContent">
-                    <div class="dropzone" id="dropZone">
+                <!-- Tab View 2: Upload Dropzone -->
+                <div class="tab-content hidden" id="uploadTabContent">
+                    <div class="drop-target" id="dropZone">
                         <input type="file" id="fileInput" accept=".py" class="hidden-input">
-                        <div class="dropzone-idle" id="dropzoneIdle">
-                            <div class="dropzone-icon">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                        <div class="drop-idle" id="dropzoneIdle">
+                            <div class="drop-icon" aria-hidden="true">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
                                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                                     <polyline points="14 2 14 8 20 8"/>
                                     <line x1="12" y1="18" x2="12" y2="12"/>
                                     <line x1="9" y1="15" x2="15" y2="15"/>
                                 </svg>
                             </div>
-                            <h3>Drag and drop Python module</h3>
-                            <p>or <span class="action-link">browse from local disk</span></p>
-                            <span class="dropzone-hint">Supports .py files up to 5 MB</span>
+                            <div class="drop-text">
+                                <span class="drop-main-text">Drag and drop a Python module (.py)</span>
+                                <span class="drop-sub-text">or <span class="action-highlight">select from disk</span> (up to 5 MB)</span>
+                            </div>
                         </div>
 
-                        <div class="file-loaded-state hidden" id="selectedFileInfo">
-                            <div class="loaded-file-meta">
-                                <span class="file-pill">PYTHON</span>
-                                <span class="file-name" id="selectedFileName">module.py</span>
-                                <span class="file-size" id="selectedFileSize">0 KB</span>
+                        <div class="file-selection-badge hidden" id="selectedFileInfo">
+                            <div class="selection-meta">
+                                <span class="file-ext">PY</span>
+                                <span class="selection-name" id="selectedFileName">module.py</span>
+                                <span class="selection-size" id="selectedFileSize">0 KB</span>
                             </div>
-                            <button type="button" class="btn-icon-danger" onclick="clearSelectedFile(event)" title="Remove file">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <button type="button" class="btn-icon-subtle" onclick="clearSelectedFile(event)" title="Remove selected file">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                     <line x1="18" y1="6" x2="6" y2="18"/>
                                     <line x1="6" y1="6" x2="18" y2="18"/>
                                 </svg>
@@ -134,169 +130,159 @@
                     </div>
                 </div>
 
-                <!-- Execute Button -->
-                <div class="workspace-action">
-                    <button type="button" class="btn-execute" id="analyzeBtn" onclick="runAnalysis()">
-                        <span class="btn-spinner hidden" id="btnSpinner"></span>
-                        <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <!-- Execute Command Bar -->
+                <div class="panel-footer">
+                    <button type="button" class="btn-primary-execute" id="analyzeBtn" onclick="runAnalysis()">
+                        <span class="btn-spinner hidden" id="btnSpinner" aria-hidden="true"></span>
+                        <svg class="btn-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
                             <polygon points="5 3 19 12 5 21 5 3"/>
                         </svg>
                         <span id="analyzeBtnText">Run Defect Risk Analysis</span>
-                        <span class="key-shortcut">Ctrl+Enter</span>
+                        <kbd class="key-shortcut">Ctrl+Enter</kbd>
                     </button>
                 </div>
             </section>
 
-            <!-- Right Workspace: Inspection Results -->
-            <section class="card results-workspace" id="resultsPanel">
-                <!-- Empty State -->
-                <div class="state-empty" id="emptyState">
-                    <div class="empty-icon-wrap">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <!-- Right Panel: Inspection Report -->
+            <section class="workbench-panel panel-results" id="resultsPanel" aria-label="Defect Risk Inspection Results">
+                <!-- Standby State -->
+                <div class="panel-state-placeholder" id="emptyState">
+                    <div class="state-icon" aria-hidden="true">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
                             <circle cx="11" cy="11" r="8"/>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"/>
                             <line x1="11" y1="8" x2="11" y2="14"/>
                             <line x1="8" y1="11" x2="14" y2="11"/>
                         </svg>
                     </div>
-                    <h3>Engine Standby</h3>
-                    <p>Enter Python code on the left or select a preset, then click <strong>Run Defect Risk Analysis</strong> to compute cyclomatic complexity, Halstead effort, and TreeSHAP risk factors.</p>
+                    <div class="state-heading">Ready for Code Analysis</div>
+                    <p class="state-description">Paste Python code on the left or load a sample module, then run the engine to calculate McCabe complexity, Halstead metrics, and TreeSHAP risk factors.</p>
                 </div>
 
-                <!-- Loading State -->
-                <div class="state-loading hidden" id="loadingState">
-                    <div class="loader-ring"></div>
-                    <h3>Parsing Abstract Syntax Tree...</h3>
-                    <p>Extracting McCabe & Halstead metrics and computing TreeSHAP attributions</p>
+                <!-- Processing State -->
+                <div class="panel-state-placeholder hidden" id="loadingState">
+                    <div class="progress-spinner" aria-hidden="true"></div>
+                    <div class="state-heading">Analyzing Abstract Syntax Tree...</div>
+                    <p class="state-description">Extracting code metrics, evaluating NASA KC1 defect model, and generating TreeSHAP attributions.</p>
                 </div>
 
-                <!-- Report Content -->
-                <div class="report-container hidden" id="reportContent">
-                    <!-- Top Summary Banner -->
+                <!-- Live Results Report -->
+                <div class="report-view hidden" id="reportContent">
+                    <!-- Top Assessment Summary Bar -->
                     <div class="verdict-banner" id="verdictBanner">
-                        <div class="verdict-score-block">
-                            <div class="radial-gauge-wrap">
-                                <svg class="radial-svg" viewBox="0 0 100 100">
-                                    <circle class="radial-bg" cx="50" cy="50" r="42"/>
-                                    <circle class="radial-bar" id="radialBar" cx="50" cy="50" r="42"/>
-                                </svg>
-                                <span class="radial-text" id="riskPercentText">0%</span>
-                            </div>
+                        <div class="verdict-gauge">
+                            <svg class="radial-svg" viewBox="0 0 100 100" aria-hidden="true">
+                                <circle class="radial-bg" cx="50" cy="50" r="42"/>
+                                <circle class="radial-bar" id="radialBar" cx="50" cy="50" r="42"/>
+                            </svg>
+                            <span class="radial-value" id="riskPercentText">0%</span>
                         </div>
 
-                        <div class="verdict-meta-block">
-                            <div class="verdict-header">
-                                <span class="verdict-badge low" id="riskLevelBadge">LOW RISK</span>
-                                <span class="file-identifier" id="reportFileName">module.py</span>
+                        <div class="verdict-details">
+                            <div class="verdict-headline-row">
+                                <span class="risk-badge low" id="riskLevelBadge">LOW RISK</span>
+                                <span class="target-file-name" id="reportFileName">module.py</span>
                             </div>
                             <h2 class="verdict-headline" id="verdictHeadline">Defect-Proneness Assessment</h2>
-                            <p class="verdict-summary" id="riskSummaryText">Structural complexity is within safe operational thresholds.</p>
+                            <p class="verdict-narrative" id="riskSummaryText">Structural complexity is within safe operational limits.</p>
                         </div>
                     </div>
 
-                    <!-- Critical Hotspot Card -->
-                    <div class="hotspot-card" id="hotspotCard">
-                        <div class="hotspot-badge">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <!-- Critical Hotspot Alert Strip (Shown only when a high-complexity hotspot exists) -->
+                    <div class="hotspot-strip hidden" id="hotspotCard">
+                        <div class="hotspot-header">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                                 <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
                                 <line x1="12" y1="9" x2="12" y2="13"/>
                                 <line x1="12" y1="17" x2="12.01" y2="17"/>
                             </svg>
-                            <span>Refactoring Hotspot</span>
+                            <span class="hotspot-title">Refactoring Hotspot:</span>
+                            <span class="hotspot-target" id="suspiciousComponentText">None detected</span>
                         </div>
-                        <div class="hotspot-body">
-                            <div class="hotspot-signature" id="suspiciousComponentText">None detected</div>
-                            <p class="hotspot-rationale" id="hotspotRationale">Function exceeds recommended cyclomatic bounds. Modularizing this block will yield the highest risk reduction.</p>
+                        <p class="hotspot-body" id="hotspotRationale">Function exceeds standard cyclomatic bounds. Refactoring this routine provides the highest reduction in defect risk.</p>
+                    </div>
+
+                    <!-- Static Code Metric Summary Strip (Flat Ribbon, No Cards) -->
+                    <div class="report-section">
+                        <div class="section-title-bar">
+                            <span class="section-heading">Static Code Metrics</span>
+                            <span class="section-subtext">McCabe & Halstead AST Extractions</span>
+                        </div>
+                        <div class="metric-ribbon">
+                            <div class="metric-cell">
+                                <span class="metric-label">Lines of Code</span>
+                                <span class="metric-number" id="metricLOC">0</span>
+                                <span class="metric-unit">Executable LOC</span>
+                            </div>
+                            <div class="metric-cell">
+                                <span class="metric-label">Cyclomatic Complexity</span>
+                                <span class="metric-number" id="metricCYCLO">0</span>
+                                <span class="metric-unit">McCabe v(g)</span>
+                            </div>
+                            <div class="metric-cell">
+                                <span class="metric-label">Decision Branches</span>
+                                <span class="metric-number" id="metricBranch">0</span>
+                                <span class="metric-unit">Branch paths</span>
+                            </div>
+                            <div class="metric-cell">
+                                <span class="metric-label">Dependencies</span>
+                                <span class="metric-number" id="metricDeps">0</span>
+                                <span class="metric-unit">Imports (Fan-Out)</span>
+                            </div>
+                            <div class="metric-cell">
+                                <span class="metric-label">Operators</span>
+                                <span class="metric-number" id="metricOperators">0</span>
+                                <span class="metric-unit">Halstead count</span>
+                            </div>
+                            <div class="metric-cell">
+                                <span class="metric-label">Operands</span>
+                                <span class="metric-number" id="metricOperands">0</span>
+                                <span class="metric-unit">Tokens & literals</span>
+                            </div>
                         </div>
                     </div>
 
                     <!-- TreeSHAP Explainability Factors -->
-                    <div class="shap-columns">
-                        <!-- Risk Drivers -->
-                        <div class="shap-panel risk-panel">
-                            <div class="shap-panel-header">
-                                <div class="shap-header-title">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                        <line x1="12" y1="19" x2="12" y2="5"/>
-                                        <polyline points="5 12 12 5 19 12"/>
-                                    </svg>
-                                    <span>Risk Elevating Factors</span>
+                    <div class="report-section">
+                        <div class="section-title-bar">
+                            <span class="section-heading">TreeSHAP Explainability Attribution</span>
+                            <span class="section-subtext">Directional feature impact on defect risk prediction</span>
+                        </div>
+                        <div class="shap-columns">
+                            <!-- Risk Elevating Drivers -->
+                            <div class="shap-group">
+                                <div class="shap-group-header">
+                                    <span class="shap-group-title risk-color">Risk Elevating Drivers</span>
+                                    <span class="shap-group-meta">Increased risk score</span>
                                 </div>
-                                <span class="shap-subtitle">Pushed score higher</span>
+                                <ul class="shap-list" id="riskDriversList"></ul>
                             </div>
-                            <ul class="shap-factor-list" id="riskDriversList"></ul>
-                        </div>
 
-                        <!-- Mitigating Drivers -->
-                        <div class="shap-panel mitigate-panel">
-                            <div class="shap-panel-header">
-                                <div class="shap-header-title">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                        <line x1="12" y1="5" x2="12" y2="19"/>
-                                        <polyline points="19 12 12 19 5 12"/>
-                                    </svg>
-                                    <span>Mitigating Strengths</span>
+                            <!-- Mitigating Drivers -->
+                            <div class="shap-group">
+                                <div class="shap-group-header">
+                                    <span class="shap-group-title safe-color">Mitigating Strengths</span>
+                                    <span class="shap-group-meta">Decreased risk score</span>
                                 </div>
-                                <span class="shap-subtitle">Reduced defect risk</span>
-                            </div>
-                            <ul class="shap-factor-list" id="mitigatingDriversList"></ul>
-                        </div>
-                    </div>
-
-                    <!-- Static Code Metric Grid -->
-                    <div class="section-card">
-                        <div class="section-card-header">
-                            <h3>Static Metric Extractions</h3>
-                            <span class="subtle-note">AST & Radon Physics</span>
-                        </div>
-                        <div class="metric-tiles-grid">
-                            <div class="metric-tile">
-                                <span class="metric-name">Lines of Code</span>
-                                <span class="metric-figure" id="metricLOC">0</span>
-                                <span class="metric-subtext">Executable LOC</span>
-                            </div>
-                            <div class="metric-tile">
-                                <span class="metric-name">Cyclomatic Complexity</span>
-                                <span class="metric-figure" id="metricCYCLO">0</span>
-                                <span class="metric-subtext">McCabe v(g)</span>
-                            </div>
-                            <div class="metric-tile">
-                                <span class="metric-name">Decision Branches</span>
-                                <span class="metric-figure" id="metricBranch">0</span>
-                                <span class="metric-subtext">if/else/loops</span>
-                            </div>
-                            <div class="metric-tile">
-                                <span class="metric-name">External Dependencies</span>
-                                <span class="metric-figure" id="metricDeps">0</span>
-                                <span class="metric-subtext">Imports (Fan-out)</span>
-                            </div>
-                            <div class="metric-tile">
-                                <span class="metric-name">Operators Count</span>
-                                <span class="metric-figure" id="metricOperators">0</span>
-                                <span class="metric-subtext">Halstead total</span>
-                            </div>
-                            <div class="metric-tile">
-                                <span class="metric-name">Operands Count</span>
-                                <span class="metric-figure" id="metricOperands">0</span>
-                                <span class="metric-subtext">Variables & literals</span>
+                                <ul class="shap-list" id="mitigatingDriversList"></ul>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Functions Breakdown -->
-                    <div class="section-card">
-                        <div class="section-card-header">
-                            <h3>Function Decomposition</h3>
-                            <span class="subtle-note"><span id="functionCount">0</span> routines analyzed</span>
+                    <!-- Function Decomposition Table -->
+                    <div class="report-section">
+                        <div class="section-title-bar">
+                            <span class="section-heading">Function Decomposition</span>
+                            <span class="section-subtext"><span id="functionCount">0</span> routines evaluated</span>
                         </div>
-                        <div class="table-container">
-                            <table class="data-table">
+                        <div class="table-wrap">
+                            <table class="report-table">
                                 <thead>
                                     <tr>
                                         <th>Routine Name</th>
-                                        <th>Line</th>
-                                        <th>Cyclomatic Complexity</th>
-                                        <th>Refactor Priority</th>
+                                        <th>Start Line</th>
+                                        <th>Cyclomatic v(g)</th>
+                                        <th>Inspection Status</th>
                                     </tr>
                                 </thead>
                                 <tbody id="functionTableBody"></tbody>
@@ -308,40 +294,29 @@
         </main>
 
         <!-- Bottom Audit Trail Section -->
-        <section class="card audit-section">
-            <div class="audit-header">
-                <div class="audit-header-title">
-                    <div class="audit-icon-wrap">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <line x1="16" y1="13" x2="8" y2="13"/>
-                            <line x1="16" y1="17" x2="8" y2="17"/>
-                            <polyline points="10 9 9 9 8 9"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h2>Scan History & Audit Trail</h2>
-                        <span class="audit-sub">Persistent telemetry logged to SQL Database (<span id="historyCount">0</span> records)</span>
-                    </div>
+        <section class="audit-strip" aria-label="Scan Telemetry Audit Trail">
+            <div class="audit-top-bar">
+                <div class="audit-title-block">
+                    <span class="audit-main-title">Telemetry Audit Trail</span>
+                    <span class="audit-counter">(<span id="historyCount">0</span> records logged to SQLite)</span>
                 </div>
 
-                <div class="audit-controls">
-                    <select id="riskFilterSelect" class="select-input" onchange="loadHistory()">
+                <div class="audit-action-controls">
+                    <select id="riskFilterSelect" class="filter-dropdown" onchange="loadHistory()" aria-label="Filter by Risk Tier">
                         <option value="">All Risk Tiers</option>
                         <option value="HIGH">High Risk Only</option>
                         <option value="MEDIUM">Medium Risk Only</option>
                         <option value="LOW">Low Risk Only</option>
                     </select>
-                    <button type="button" class="btn-subtle" onclick="loadHistory()">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <button type="button" class="btn-toolbar" onclick="loadHistory()">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                             <polyline points="23 4 23 10 17 10"/>
                             <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
                         </svg>
                         <span>Refresh</span>
                     </button>
-                    <button type="button" class="btn-subtle-danger" onclick="clearAllHistory()">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <button type="button" class="btn-toolbar btn-toolbar-danger" onclick="clearAllHistory()">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                             <polyline points="3 6 5 6 21 6"/>
                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                         </svg>
@@ -350,8 +325,8 @@
                 </div>
             </div>
 
-            <div class="table-container audit-table-wrapper">
-                <table class="data-table">
+            <div class="table-wrap audit-table-container">
+                <table class="report-table">
                     <thead>
                         <tr>
                             <th>#ID</th>
@@ -362,18 +337,18 @@
                             <th>LOC</th>
                             <th>v(g)</th>
                             <th>Hotspot Component</th>
-                            <th>Actions</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody id="historyTableBody"></tbody>
                 </table>
-                <div class="empty-table-note hidden" id="historyEmpty">
-                    <p>No telemetry recorded yet. Analyze a code snippet above to populate audit logs.</p>
+                <div class="table-empty-notice hidden" id="historyEmpty">
+                    <p>No telemetry recorded yet. Analyze a Python code module above to log execution history.</p>
                 </div>
             </div>
         </section>
     </div>
 
-    <script src="/static/js/app.js?v=2.1"></script>
+    <script src="/static/js/app.js?v=3.1"></script>
 </body>
 </html>
